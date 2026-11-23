@@ -16,13 +16,19 @@
     .admin { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 20px; }
     select { width: 100%; min-height: 52px; border-radius: 14px; background: var(--card); color: var(--text); border: 1px solid var(--line); font: inherit; padding: 0 12px; }
     .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; }
+    .lockbox { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px 16px; }
     .note { color: var(--muted); font-size: 14px; margin-top: 8px; }
   </style>
 </head>
 <body>
   <main>
     <div class="top"><div class="brand">Galeria · tylko dla Ciebie</div><a class="icon-btn" href="./">← aplikacja</a></div>
-    <h1 class="title">Wszystkie zdjęcia</h1>
+    <h1 class="title">Panel</h1>
+    <section class="lockbox">
+      <p class="note" id="lockState">…</p>
+      <div class="actions" style="margin-top:8px"><button class="btn btn-primary" id="lockBtn" disabled>…</button></div>
+    </section>
+    <h2 style="margin-top:28px">Wszystkie zdjęcia</h2>
     <p id="summary" class="where">Ładuję…</p>
 
     <div class="actions">

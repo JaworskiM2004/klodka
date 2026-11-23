@@ -28,3 +28,25 @@ export function fitSize(w, h, max) {
 export function photoPath(stopId, now = Date.now(), rand = Math.random()) {
   return `${stopId}/${now}-${Math.floor(rand * 1e8).toString(36)}.jpg`;
 }
+
+// Który ekran pokazać.
+export function screenFor({ unlocked, standalone, tutorialDone, current, total, introSeen }) {
+  if (!unlocked) return standalone || tutorialDone ? 'lock' : 'tutorial';
+  if (current >= total) return 'end';
+  if (!introSeen && current === 0) return 'intro';
+  return 'stop';
+}
+
+// Niespodzianki (jarmark, Wedel) zdradzamy dopiero na miejscu.
+export function displayTitle(stop, revealed) {
+  return stop.secret && !revealed ? 'Niespodzianka ✨' : stop.title;
+}
+
+// Tekst na kłódce: kiedy się otworzy (spotkanie 24.11.2026 o 19:00, czas lokalny).
+export function lockWhen(now = new Date()) {
+  const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+  const day = y * 10000 + m * 100 + d;
+  if (day < 20261124) return day === 20261123 ? 'jutro o 19:00' : '24 listopada o 19:00';
+  if (day === 20261124 && now.getHours() < 19) return 'dziś o 19:00';
+  return 'już za chwilę';
+}

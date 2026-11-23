@@ -26,7 +26,9 @@ async function load() {
     return `<div class="group"><h2>${esc(s.title)}</h2><div class="muted">${list.length} zdj.</div>
       <div class="photos">${list.map((p) => `<a href="${esc(api.publicUrl(p.path))}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(api.publicUrl(p.path))}" alt=""></a>`).join('')}</div></div>`;
   }).join('');
-  const cur = await api.getCurrent();
+  const g = await api.getGame();
+  const cur = g.current;
+  showLock(g.unlocked);
   $('jump').innerHTML = stops.map((s, i) => `<option value="${i}" ${i === cur ? 'selected' : ''}>${i + 1}. ${esc(s.title)}</option>`).join('')
     + `<option value="${stops.length}" ${cur >= stops.length ? 'selected' : ''}>✨ Ekran końcowy</option>`;
 }
@@ -87,6 +89,20 @@ $('zip').addEventListener('click', async () => {
     $('zip').disabled = false;
     $('zip').textContent = '🗂️ Pobierz jako ZIP';
   }
+});
+
+let unlocked = false;
+function showLock(u) {
+  unlocked = u;
+  $('lockState').textContent = u ? '🔓 Otwarta — aplikacja działa na obu telefonach.' : '🔒 Zamknięta — na telefonach widać tylko kłódkę.';
+  $('lockBtn').textContent = u ? '🔒 Zamknij z powrotem' : '🔓 Odblokuj aplikację';
+  $('lockBtn').disabled = false;
+}
+
+$('lockBtn').addEventListener('click', async () => {
+  $('lockBtn').disabled = true;
+  try { showLock(await api.setUnlocked(!unlocked)); toast(unlocked ? 'Otwarte ✨ (telefony przełączą się w kilka sekund)' : 'Zamknięte 🔒'); }
+  catch { toast('Nie udało się — brak internetu?'); $('lockBtn').disabled = false; }
 });
 
 $('jumpBtn').addEventListener('click', async () => {

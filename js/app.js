@@ -1,24 +1,30 @@
-import { stops } from './stops.js';
-import { mapsUrl, clampIndex } from './logic.js';
+import { stops, ANGEL_COUNT } from './stops.js';
+import { mapsUrl, clampIndex, nextIndex, screenFor, displayTitle, lockWhen } from './logic.js';
 import * as api from './api.js';
 import { shrink } from './shrink.js';
+import { viewTutorial, wireTutorial, tutorialGo, isStandalone, PADLOCK } from './tutorial.js';
 
 const TOTAL = stops.length;
 const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
 
+function safeGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function safeSet(k, v) { try { localStorage.setItem(k, v); } catch { /* tryb prywatny */ } }
+
 const state = {
-  current: Number(safeGet('aniolki.current') ?? 0),
+  loaded: false,
+  unlocked: safeGet('aniolki.unlocked') === '1',
+  current: clampIndex(Number(safeGet('aniolki.current') ?? 0), TOTAL),
   photos: [],
-  pending: {},              // stopId -> liczba wysyłanych zdjęć
+  pending: {},
   arrived: new Set(JSON.parse(safeGet('aniolki.arrived') || '[]')),
   introSeen: safeGet('aniolki.intro') === '1',
+  tutorialDone: safeGet('aniolki.tutorial') === '1',
+  standalone: isStandalone(),
   busy: false,
   sheet: false,
+  unlocking: false,
 };
-
-function safeGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
-function safeSet(k, v) { try { localStorage.setItem(k, v); } catch { /* prywatny tryb */ } }
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -38,74 +44,95 @@ const ANGEL_SVG = `
   <path d="M36 86 C38 66 42 54 48 54 C54 54 58 66 60 86Z" fill="#f2eff8"/>
 </svg>`;
 
-// ---------- dane ----------
+// ---------- stan ----------
 
 function setCurrent(c) {
   const v = clampIndex(c, TOTAL);
-  if (v !== state.current) {
-    state.current = v;
-    // "Jesteśmy!" dotyczy tylko bieżącego przystanku — po zmianie zaczynamy od czystej karty.
-    state.arrived.clear();
-    safeSet('aniolki.arrived', '[]');
-  }
+  if (v === state.current) return false;
+  state.current = v;
+  state.arrived.clear(); // "Jesteśmy!" dotyczy tylko bieżącego przystanku
+  safeSet('aniolki.arrived', '[]');
   safeSet('aniolki.current', String(v));
+  return true;
+}
+
+function setUnlocked(u) {
+  if (u === state.unlocked) return false;
+  state.unlocked = u;
+  safeSet('aniolki.unlocked', u ? '1' : '0');
+  return true;
+}
+
+function applyGame(g) {
+  if (!state.unlocked && g.unlocked && screen() === 'lock') return unlockAnimation(g);
+  const a = setUnlocked(!!g.unlocked);
+  const b = setCurrent(g.current);
+  return a || b;
 }
 
 async function refresh() {
   try {
-    const [c, photos] = await Promise.all([api.getCurrent(), api.listPhotos()]);
-    const changed = c !== state.current || photos.length !== state.photos.length || !state.loaded;
+    const [g, photos] = await Promise.all([api.getGame(), api.listPhotos()]);
+    const first = !state.loaded;
     state.loaded = true;
-    setCurrent(c);
+    const photosChanged = photos.length !== state.photos.length;
     state.photos = photos;
-    if (changed) render();
+    const changed = applyGame(g);
+    if (first || changed || photosChanged) render();
   } catch (e) {
     console.warn(e);
+    if (!state.loaded) { state.loaded = true; render(); toast('Słaby internet — próbuję dalej…'); }
   }
 }
 
-function photosFor(stopId) {
-  return state.photos.filter((p) => p.stop_id === stopId);
-}
-
-function isArrived(stop) {
-  return state.arrived.has(stop.id) || photosFor(stop.id).length > 0;
-}
+const photosFor = (id) => state.photos.filter((p) => p.stop_id === id);
+const isArrived = (stop) => state.arrived.has(stop.id) || photosFor(stop.id).length > 0;
 
 function markArrived(stop) {
   state.arrived.add(stop.id);
   safeSet('aniolki.arrived', JSON.stringify([...state.arrived]));
 }
 
+function screen() {
+  return screenFor({ ...state, total: TOTAL });
+}
+
 // ---------- akcje ----------
 
 async function goNext() {
   if (state.busy) return;
+  const from = state.current;
   state.busy = true;
+  setCurrent(nextIndex(from, TOTAL)); // od razu, bez czekania na serwer
+  window.scrollTo(0, 0);
   render();
   try {
-    const c = await api.advance(state.current);
-    setCurrent(c);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const c = await api.advance(from);
+    if (setCurrent(c)) render();
   } catch (e) {
     console.warn(e);
+    setCurrent(from);
+    render();
     toast('Coś z internetem 🙈 Spróbuj jeszcze raz.');
   } finally {
     state.busy = false;
-    render();
   }
 }
 
 async function jumpTo(i) {
   state.sheet = false;
+  const from = state.current;
+  setCurrent(i);
+  window.scrollTo(0, 0);
+  render();
   try {
-    setCurrent(await api.setCurrent(i));
-    window.scrollTo({ top: 0 });
+    if (setCurrent(await api.setCurrent(i))) render();
   } catch (e) {
     console.warn(e);
+    setCurrent(from);
+    render();
     toast('Nie udało się przełączyć — brak internetu?');
   }
-  render();
 }
 
 async function addPhotos(stop, files) {
@@ -116,8 +143,7 @@ async function addPhotos(stop, files) {
   let failed = 0;
   for (const file of list) {
     try {
-      const blob = await shrink(file);
-      const row = await api.uploadPhoto(stop.id, blob);
+      const row = await api.uploadPhoto(stop.id, await shrink(file));
       if (!state.photos.some((p) => p.id === row.id)) state.photos.push(row);
     } catch (e) {
       console.warn(e);
@@ -130,22 +156,57 @@ async function addPhotos(stop, files) {
   if (failed) toast(`Nie wysłało się ${failed} ${failed === 1 ? 'zdjęcie' : 'zdjęć'} — spróbuj dodać jeszcze raz.`, 4500);
 }
 
+const LOCK_LINES = ['Jeszcze nie 😌', 'Cierpliwości…', 'Wytrych nie zadziała', 'Klucz ma ktoś inny', 'Nic z tego 😄'];
+function shakeLock() {
+  const lock = app.querySelector('.padlock');
+  const line = app.querySelector('.lock-line');
+  if (!lock) return;
+  lock.classList.remove('shake');
+  void lock.getBoundingClientRect();
+  lock.classList.add('shake');
+  shakeLock.n = ((shakeLock.n ?? -1) + 1) % LOCK_LINES.length;
+  if (line) line.textContent = LOCK_LINES[shakeLock.n];
+}
+
+function unlockAnimation(g) {
+  if (state.unlocking) return false;
+  state.unlocking = true;
+  app.querySelector('.padlock')?.classList.add('open');
+  const line = app.querySelector('.lock-line');
+  if (line) line.textContent = 'Otwarte ✨';
+  setTimeout(() => {
+    state.unlocking = false;
+    setUnlocked(true);
+    setCurrent(g.current);
+    render();
+  }, 1600);
+  return false;
+}
+
 // ---------- widoki ----------
+
+function viewLock() {
+  const inBrowser = !state.standalone;
+  return `
+  <section class="lock-screen">
+    <button class="lock-btn" data-act="lock" aria-label="Kłódka">${PADLOCK()}</button>
+    <h1>Jeszcze zamknięte</h1>
+    <p>Otworzy się ${esc(lockWhen())}.<br>Klucz ma ktoś inny 😉</p>
+    <p class="lock-line" aria-live="polite">&nbsp;</p>
+    ${inBrowser ? '<p class="slide-note">Od teraz otwieraj kłódkę z ekranu początkowego.</p>' : ''}
+  </section>`;
+}
 
 function viewIntro() {
   return `
-  <section class="hero fade-in">
+  <section class="hero">
     ${ANGEL_SVG}
     <h1>Śladem toruńskich aniołków</h1>
-    <p>Mały wieczorny szlak: kilkanaście aniołków, grzaniec i gorąca czekolada.</p>
-    <p>Przy każdym przystanku jest wspólna fota — albo i nie, jak kto woli. Klikać można z dowolnego telefonu, oba widzą to samo.</p>
-    <div class="chips">
-      <span class="chip">😇 15 aniołków</span>
-      <span class="chip">🍷 jarmark</span>
-      <span class="chip">☕ Wedel</span>
-    </div>
+    <p>${ANGEL_COUNT} aniołków ukrytych na Starówce. Przy każdym — wspólna fota (albo i nie, jak kto woli).</p>
+    <p>Po drodze może trafić się jakaś niespodzianka ✨</p>
+    <p class="slide-note">Klikać można z dowolnego telefonu — oba widzą to samo.</p>
     <div class="actions">
-      <button class="btn btn-primary" data-act="start">Zaczynamy ✨</button>
+      <button class="btn btn-primary" data-act="start">Zaczynamy</button>
     </div>
   </section>`;
 }
@@ -161,70 +222,76 @@ function topBar() {
 }
 
 function photoGrid(stop) {
-  const imgs = photosFor(stop.id)
-    .map((p) => `<a href="${esc(api.publicUrl(p.path))}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(api.publicUrl(p.path))}" alt="Zdjęcie"></a>`)
-    .join('');
+  const list = photosFor(stop.id);
+  const imgs = list.map((p) => {
+    const u = esc(api.publicUrl(p.path));
+    return `<a href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="Zdjęcie"></a>`;
+  }).join('');
   const pend = Array.from({ length: state.pending[stop.id] || 0 }, () => '<div class="ph"><div class="spin"></div></div>').join('');
-  const n = photosFor(stop.id).length;
   return `
   <div class="photos">
     ${imgs}${pend}
     <label>
       <input type="file" accept="image/*" multiple data-upload="${esc(stop.id)}">
-      <div><span>📷</span>${n ? 'Jeszcze jedno' : 'Dodaj zdjęcie'}</div>
+      <div><span>📷</span>${list.length ? 'Jeszcze jedno' : 'Dodaj zdjęcie'}</div>
     </label>
   </div>`;
 }
 
+function nextTeaser() {
+  const next = stops[state.current + 1];
+  if (!next) return '';
+  return `<div class="next">Następny: <b>${esc(displayTitle(next, false))}</b></div>`;
+}
+
 function viewStop() {
   const stop = stops[state.current];
-  const next = stops[state.current + 1];
   const arrived = isArrived(stop);
   const isLast = state.current === TOTAL - 1;
   const kicker = stop.kind === 'angel' ? `Przystanek ${state.current + 1} · aniołek` : `Przystanek ${state.current + 1}`;
-
   const head = `
     <div class="kicker">${kicker}</div>
-    <h1 class="title">${esc(stop.title)}</h1>
-    <div class="where"><span>📍</span><span>${esc(stop.where)}</span></div>`;
+    <h1 class="title">${esc(displayTitle(stop, arrived))}</h1>`;
 
   if (!arrived) {
     return `${topBar()}
-    <section class="card fade-in">
+    <section class="card">
       ${head}
       <div class="actions">
-        <a class="btn btn-ghost" href="${esc(mapsUrl(stop))}" target="_blank" rel="noopener">🧭 Prowadź (Google Maps)</a>
+        <a class="btn btn-ghost" href="${esc(mapsUrl(stop))}" target="_blank" rel="noopener">🧭 Prowadź</a>
         <button class="btn btn-primary" data-act="arrive">Jesteśmy! ✨</button>
       </div>
-      <button class="link" data-act="next" ${state.busy ? 'disabled' : ''}>pomiń ten przystanek</button>
+      <button class="link" data-act="next">pomiń ten przystanek</button>
     </section>`;
   }
 
   const n = photosFor(stop.id).length;
   const uploading = (state.pending[stop.id] || 0) > 0;
-  const nextLabel = isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
+  const label = uploading ? 'Wysyłam zdjęcia…' : isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
   return `${topBar()}
-  <section class="card fade-in">
+  <section class="card">
     ${head}
+    <div class="where"><span>📍</span><span>${esc(stop.hint)}</span></div>
     <div class="task"><span class="kicker">Zadanie</span>${esc(stop.task)}</div>
     ${photoGrid(stop)}
     <ul class="facts">${stop.facts.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
     <div class="actions">
-      <button class="btn btn-primary" data-act="next" ${state.busy || uploading ? 'disabled' : ''}>${uploading ? 'Wysyłam zdjęcia…' : nextLabel}</button>
+      <button class="btn btn-primary" data-act="next" ${uploading ? 'disabled' : ''}>${label}</button>
     </div>
-    ${next ? `<div class="next">Następny: <b>${esc(next.title)}</b></div>` : ''}
+    ${nextTeaser()}
   </section>`;
 }
 
 function viewEnd() {
   const all = state.photos;
+  const word = all.length === 1 ? 'zdjęcie' : all.length % 10 >= 2 && all.length % 10 <= 4 && (all.length < 10 || all.length > 20) ? 'zdjęcia' : 'zdjęć';
   return `
-  <section class="hero fade-in">
+  <section class="hero">
     ${ANGEL_SVG}
     <h1>Szlak zaliczony ✨</h1>
-    <p>${TOTAL} przystanków${all.length ? ` i ${all.length} ${all.length === 1 ? 'zdjęcie' : all.length < 5 ? 'zdjęcia' : 'zdjęć'}` : ''}. Dzięki za ten spacer.</p>
+    <p>${ANGEL_COUNT} aniołków${all.length ? ` i ${all.length} ${word}` : ''}. Dzięki za ten spacer.</p>
   </section>
-  ${all.length ? `<div class="photos">${all.map((p) => `<a href="${esc(api.publicUrl(p.path))}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(api.publicUrl(p.path))}" alt="Zdjęcie"></a>`).join('')}</div>` : ''}
+  ${all.length ? `<div class="photos">${all.map((p) => { const u = esc(api.publicUrl(p.path)); return `<a href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="Zdjęcie"></a>`; }).join('')}</div>` : ''}
   <button class="link" data-act="sheet">lista przystanków</button>`;
 }
 
@@ -232,10 +299,11 @@ function viewSheet() {
   const items = stops.map((s, i) => {
     const cls = i < state.current ? 'done' : i === state.current ? 'now' : '';
     const dot = i < state.current ? '✓' : i + 1;
+    const revealed = i < state.current || (i === state.current && isArrived(s));
     const n = photosFor(s.id).length;
     return `<li class="${cls}"><button data-jump="${i}">
       <span class="dot">${dot}</span>
-      <span>${esc(s.title)}<small>${esc(s.where)}${n ? ` · 📷 ${n}` : ''}</small></span>
+      <span>${esc(displayTitle(s, revealed))}${n ? `<small>📷 ${n}</small>` : ''}</span>
     </button></li>`;
   }).join('');
   return `
@@ -250,15 +318,28 @@ function viewSheet() {
 
 // Gdy otwarty jest wybór zdjęć, nie podmieniamy HTML (zgubilibyśmy wybrane pliki).
 let picking = 0;
+let lastKey = '';
 function render() {
   if (picking && Date.now() - picking < 120000) { render.queued = true; return; }
   picking = 0;
+  if (!state.loaded) return; // ekran ładowania z index.html
+  const scr = screen();
   let html;
-  if (state.current >= TOTAL) html = viewEnd();
-  else if (!state.introSeen && state.current === 0 && state.photos.length === 0) html = viewIntro();
-  else html = viewStop();
-  if (state.sheet) html += viewSheet();
-  app.innerHTML = html;
+  let key = scr;
+  if (scr === 'tutorial') html = viewTutorial();
+  else if (scr === 'lock') html = viewLock();
+  else if (scr === 'intro') html = viewIntro();
+  else if (scr === 'end') html = viewEnd();
+  else {
+    html = viewStop();
+    key += `:${state.current}:${isArrived(stops[state.current])}`;
+  }
+  // Poradnik renderujemy raz — inaczej przewijane slajdy wracałyby na początek.
+  if (scr === 'tutorial' && lastKey === key && !state.sheet) return;
+  const animate = key !== lastKey;
+  lastKey = key;
+  app.innerHTML = `<div class="view${animate ? ' fade-in' : ''}">${html}</div>${state.sheet && scr !== 'tutorial' && scr !== 'lock' ? viewSheet() : ''}`;
+  if (scr === 'tutorial') wireTutorial(app);
 }
 
 // ---------- zdarzenia ----------
@@ -271,11 +352,17 @@ app.addEventListener('click', (e) => {
   if (!el) return;
   const act = el.dataset.act;
   if (act === 'close' && el.classList.contains('sheet-bg') && e.target !== el) return;
-  if (act === 'start') { state.introSeen = true; safeSet('aniolki.intro', '1'); render(); }
-  if (act === 'arrive') { markArrived(stops[state.current]); render(); }
-  if (act === 'next') goNext();
-  if (act === 'sheet') { state.sheet = true; render(); }
-  if (act === 'close') { state.sheet = false; render(); }
+  switch (act) {
+    case 'start': state.introSeen = true; safeSet('aniolki.intro', '1'); window.scrollTo(0, 0); render(); break;
+    case 'arrive': markArrived(stops[state.current]); render(); break;
+    case 'next': goNext(); break;
+    case 'sheet': state.sheet = true; render(); break;
+    case 'close': state.sheet = false; render(); break;
+    case 'lock': shakeLock(); break;
+    case 'tut-next': tutorialGo(app, 1); break;
+    case 'tut-again': tutorialGo(app, 'start'); break;
+    case 'tut-yes': state.tutorialDone = true; safeSet('aniolki.tutorial', '1'); window.scrollTo(0, 0); render(); break;
+  }
 });
 
 app.addEventListener('change', (e) => {
@@ -287,23 +374,20 @@ app.addEventListener('change', (e) => {
   else render();
 });
 
-app.addEventListener('cancel', (e) => {
-  if (e.target.matches?.('input[type=file]')) { picking = 0; if (render.queued) { render.queued = false; render(); } }
-}, true);
+const flushPicking = () => { picking = 0; if (render.queued) { render.queued = false; render(); } };
+app.addEventListener('cancel', (e) => { if (e.target.matches?.('input[type=file]')) flushPicking(); }, true);
+window.addEventListener('focus', () => setTimeout(() => {
+  if (picking && Date.now() - picking > 1500) flushPicking();
+}, 800));
 
 api.subscribe({
-  onGame: (c) => { setCurrent(c); render(); },
+  onGame: (g) => { if (applyGame(g)) render(); },
   onPhoto: (row) => {
     if (!state.photos.some((p) => p.id === row.id)) { state.photos.push(row); render(); }
   },
 });
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
-// Anulowany wybór zdjęć: wracamy do normalnego odświeżania.
-window.addEventListener('focus', () => setTimeout(() => {
-  if (picking && Date.now() - picking > 1500) { picking = 0; if (render.queued) { render.queued = false; render(); } }
-}, 800));
-setInterval(() => { if (!document.hidden) refresh(); }, 10000);
+setInterval(() => { if (!document.hidden) refresh(); }, 8000);
 
-render();
 refresh();

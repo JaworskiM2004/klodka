@@ -1,11 +1,12 @@
 // Przystanki w kolejności trasy. lat/lng aniołków z torunskieanioly.pl.
-// `dest` (opcjonalnie) — tekst celu dla Google Maps zamiast współrzędnych.
+// `hint` — gdzie szukać figurki; pokazywany dopiero po "Jesteśmy!".
+// `secret: true` — nazwa ukryta do momentu dotarcia (niespodzianka).
 export const stops = [
   {
     id: 'jordan',
     kind: 'angel',
     title: 'Jordan',
-    where: 'Przed Jordankami, od strony wejścia',
+    hint: 'Przed wejściem do Jordanek.',
     lat: 53.01402078, lng: 18.60230398,
     task: 'Pierwsza fota! Jordan śpiewa do mikrofonu — śmiało możecie mu zawtórować 🎤',
     facts: [
@@ -18,7 +19,7 @@ export const stops = [
     id: 'partnerius',
     kind: 'angel',
     title: 'Partnerius',
-    where: 'Przy fontannie Cosmopolis, obok „Harmonijki”',
+    hint: 'Przy fontannie Cosmopolis, twarzą do „Harmonijki”.',
     lat: 53.01063849, lng: 18.6000002,
     task: 'Przysiądźcie się do Partneriusa i zróbcie fotę — on też siedzi na książkach.',
     facts: [
@@ -28,38 +29,73 @@ export const stops = [
     ],
   },
   {
-    id: 'rynek',
+    id: 'jarmark',
     kind: 'place',
-    title: 'Rynek: Jonasz, Iga i jarmark',
-    where: 'Rynek Staromiejski — Jonasz przy ratuszu, Iga naprzeciwko (Rynek 5)',
-    lat: 53.01030574, lng: 18.60465252,
-    task: 'Grzaniec w dłoń 🍷 Fota z Jonaszem, fota z Igą — i jedna przy choince.',
+    secret: true,
+    title: 'Jarmark',
+    hint: 'Rynek Staromiejski — cały jest Wasz.',
+    lat: 53.0100, lng: 18.6050,
+    task: 'Czas na grzańca 🍷 Fota przy choince obowiązkowa (no, prawie).',
     facts: [
       'Stoiska w poniedziałek działają do 20:30 — więc grzaniec teraz albo nigdy 😉',
-      'Jonasz to pierwszy aniołek z całego szlaku. Od niego wszystko się zaczęło.',
-      'Imię „JOnasz” wybrali mieszkańcy w plebiscycie — zaczyna się od naszego toruńskiego „jo”.',
-      'Iga stoi pod Rynkiem 5. Dawniej była tu Gospoda Pod Turkiem, gdzie flisacy urządzali „chrzty” frycom, czyli nowicjuszom w fachu.',
+      'Z grzańcem w ręce idzie się dalej — dwa kolejne aniołki stoją dosłownie kilka kroków stąd.',
     ],
   },
   {
-    id: 'szczytna',
+    id: 'jonasz',
     kind: 'angel',
-    title: 'Janek i Maciuś',
-    where: 'Ulica Szczytna — Janek pod nr 15 (browar), Maciuś pod nr 6',
+    title: 'Jonasz',
+    hint: 'Przy ratuszu.',
+    lat: 53.01030574, lng: 18.60465252,
+    task: 'Fota z Jonaszem — to od niego wszystko się zaczęło.',
+    facts: [
+      'Jonasz to pierwszy aniołek z całego szlaku — stoi tu od maja 2025.',
+      'Imię „JOnasz” wybrali mieszkańcy w plebiscycie — zaczyna się od naszego toruńskiego „jo”.',
+      'Kiedyś parter ratusza był wielką halą kupiecką, a na piętrze obradowała rada miasta. Po krzyżakach urządzono tu nawet apartament dla króla.',
+    ],
+  },
+  {
+    id: 'iga',
+    kind: 'angel',
+    title: 'Iga',
+    hint: 'Naprzeciwko Jonasza, pod Rynkiem 5.',
+    lat: 53.0100142, lng: 18.60479491,
+    task: 'Jonasz i Iga patrzą na siebie przez cały rynek. Fota z Igą!',
+    facts: [
+      'W kamienicy pod Rynkiem 5 działała dawniej Gospoda Pod Turkiem. Flisacy urządzali tu „chrzty” frycom, czyli nowicjuszom w fachu.',
+      'Iga stoi dokładnie naprzeciwko Jonasza — pierwszego aniołka na szlaku.',
+    ],
+  },
+  {
+    id: 'janek',
+    kind: 'angel',
+    title: 'Janek',
+    hint: 'Ulica Szczytna 15, przy browarze.',
     lat: 53.01109246, lng: 18.60578631,
-    task: 'Znajdźcie obu sąsiadów. Bonus: spróbujcie odczytać sentencję ukrytą z tyłu beczki Janka.',
+    task: 'Fota z Jankiem. Bonus: spróbujcie odczytać sentencję ukrytą z tyłu jego beczki.',
     facts: [
       'Janek siedzi okrakiem na beczce — tak jak „Gruba Maryna”, figura Bachusa z dawnych flisackich chrztów (dziś w Muzeum Okręgowym).',
       'Kto rozszyfruje sentencję z tyłu beczki i powie ją obsłudze browaru, dostaje podobno małą niespodziankę.',
-      'Imię Janka to ukłon w stronę króla Jana Olbrachta. Lubił Toruń, dał miastu przywilej na stały most przez Wisłę… i zmarł w ratuszu. Jego serce wmurowano w filar kościoła św. Janów.',
-      'Maciuś-Oczywistek z Szczytnej 6 dołączył w marcu 2026. Razem z Jankiem pilnują jednej z najbardziej klimatycznych uliczek Starówki.',
+      'Imię to ukłon w stronę króla Jana Olbrachta. Lubił Toruń, dał miastu przywilej na stały most przez Wisłę… i zmarł w ratuszu. Jego serce wmurowano w filar kościoła św. Janów.',
+    ],
+  },
+  {
+    id: 'macius',
+    kind: 'angel',
+    title: 'Maciuś',
+    hint: 'Ta sama ulica — Szczytna 6.',
+    lat: 53.01086509, lng: 18.60634088,
+    task: 'Sąsiad Janka. Fota z Maciusiem!',
+    facts: [
+      'Pełne imię: Maciuś-Oczywistek. Stoi tu od marca 2026.',
+      'Razem z Jankiem pilnują jednej z najbardziej klimatycznych uliczek Starówki.',
     ],
   },
   {
     id: 'jagodka',
     kind: 'angel',
     title: 'Jagódka',
-    where: 'Ulica Most Pauliński, przy Starym Młynie',
+    hint: 'Ulica Most Pauliński, przy Starym Młynie.',
     lat: 53.01178115, lng: 18.60638303,
     task: 'Potrzyjcie jeżynę w koszyczku (oboje!) i fota.',
     facts: [
@@ -73,7 +109,7 @@ export const stops = [
     id: 'manekinek',
     kind: 'angel',
     title: 'Manekinek',
-    where: 'Ulica Wysoka 5 — patrzcie w górę, na latarnię',
+    hint: 'Wysoka 5 — patrzcie w górę, na latarnię.',
     lat: 53.01289864, lng: 18.60874038,
     task: 'Manekinek siedzi na latarni — zróbcie fotę tak, żeby był nad Wami.',
     facts: [
@@ -87,7 +123,7 @@ export const stops = [
     id: 'angelito',
     kind: 'angel',
     title: 'Angelito',
-    where: 'Ulica Szumana 1, przed restauracją',
+    hint: 'Szumana 1, przed restauracją.',
     lat: 53.01302976, lng: 18.61163947,
     task: 'Pogłaskajcie Angelito po brzuchu — podobno przynosi szczęście i uśmiech na co dzień. Fota!',
     facts: [
@@ -100,7 +136,7 @@ export const stops = [
     id: 'optus',
     kind: 'angel',
     title: 'Optuś',
-    where: 'Rynek Nowomiejski 25',
+    hint: 'Rynek Nowomiejski 25.',
     lat: 53.01199259, lng: 18.61162039,
     task: 'Fota z Optusiem. Bonus: znajdźcie na rynku przekupkę siedzącą na ławce.',
     facts: [
@@ -110,25 +146,10 @@ export const stops = [
     ],
   },
   {
-    id: 'wedel',
-    kind: 'place',
-    title: 'Pijalnia Czekolady Wedla',
-    where: 'Ulica Szeroka 40',
-    lat: 53.0110, lng: 18.6093,
-    dest: 'Pijalnia Czekolady E.Wedel, Szeroka 40, Toruń',
-    task: 'Czas na gorącą czekoladę ☕ Fota przy kubkach obowiązkowa (no, prawie).',
-    facts: [
-      'Firmę założył Karol Ernest Wedel w 1851 roku w Warszawie.',
-      'Podpis „E.Wedel” na każdym opakowaniu to autograf jego syna, Emila.',
-      'Ptasie Mleczko wymyślił w 1936 roku Jan Wedel. Podobno zapytał: czego może brakować komuś, kto ma wszystko? Chyba tylko ptasiego mleka.',
-      'Pierwsza pijalnia działa od lat 30. przy ulicy Szpitalnej w Warszawie — do dziś.',
-    ],
-  },
-  {
     id: 'lenek',
     kind: 'angel',
     title: 'Lenek',
-    where: 'Wielkie Garbary 14, na elewacji cukierni Lenkiewicz',
+    hint: 'Wielkie Garbary 14 — na ścianie cukierni.',
     lat: 53.01084148, lng: 18.60987279,
     task: 'Kto pierwszy wypatrzy Lenka na ścianie? Potem wspólna fota.',
     facts: [
@@ -141,7 +162,7 @@ export const stops = [
     id: 'przedzamcze',
     kind: 'angel',
     title: 'Samarytanka i Wanda',
-    where: 'Przedzamcze 8 — na ścianie dawnego szpitala',
+    hint: 'Przedzamcze 8 — obie na jednej ścianie dawnego szpitala.',
     lat: 53.00990061, lng: 18.61048861,
     task: 'Dwa aniołki na jednej ścianie — zróbcie fotę tak, żeby obie się zmieściły.',
     facts: [
@@ -152,10 +173,25 @@ export const stops = [
     ],
   },
   {
+    id: 'wedel',
+    kind: 'place',
+    secret: true,
+    title: 'Pijalnia Czekolady Wedla',
+    hint: 'Szeroka 42.',
+    lat: 53.0103855, lng: 18.605526,
+    task: 'Czas na gorącą czekoladę ☕ Fota przy kubkach!',
+    facts: [
+      'Firmę założył Karol Ernest Wedel w 1851 roku w Warszawie.',
+      'Podpis „E.Wedel” na każdym opakowaniu to autograf jego syna, Emila.',
+      'Ptasie Mleczko wymyślił w 1936 roku Jan Wedel. Podobno zapytał: czego może brakować komuś, kto ma wszystko? Chyba tylko ptasiego mleka.',
+      'Pierwsza pijalnia działa od lat 30. przy ulicy Szpitalnej w Warszawie — do dziś.',
+    ],
+  },
+  {
     id: 'bulwarek',
     kind: 'angel',
     title: 'Bulwarek',
-    where: 'Bulwar Filadelfijski, przy pawilonie Między Mostami',
+    hint: 'Na bulwarze, przy pawilonie Między Mostami.',
     lat: 53.00818913, lng: 18.60904526,
     task: 'Fota z Bulwarkiem i Wisłą w tle 🌊',
     facts: [
@@ -168,7 +204,7 @@ export const stops = [
     id: 'holistian',
     kind: 'angel',
     title: 'Holistian',
-    where: 'Przy Krzywej Wieży',
+    hint: 'Przy Krzywej Wieży.',
     lat: 53.00843752, lng: 18.60207427,
     task: 'Ostatni aniołek! Fota z Holistianem — a potem test Krzywej Wieży.',
     facts: [
@@ -179,3 +215,5 @@ export const stops = [
     ],
   },
 ];
+
+export const ANGEL_COUNT = 15; // Samarytanka i Wanda to dwa aniołki na jednym przystanku

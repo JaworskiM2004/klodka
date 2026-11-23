@@ -14,9 +14,16 @@ function check({ data, error }) {
   return data;
 }
 
+export async function getGame() {
+  return check(await sb.from('aniolki_game').select('current, unlocked').eq('id', 'main').single());
+}
+
 export async function getCurrent() {
-  const row = check(await sb.from('aniolki_game').select('current').eq('id', 'main').single());
-  return row.current;
+  return (await getGame()).current;
+}
+
+export async function setUnlocked(flag) {
+  return check(await sb.rpc('aniolki_unlock', { flag }));
 }
 
 export async function advance(expected) {
@@ -45,7 +52,7 @@ export async function uploadPhoto(stopId, blob) {
 export function subscribe({ onGame, onPhoto }) {
   return sb
     .channel('aniolki')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'aniolki_game' }, (p) => onGame?.(p.new.current))
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'aniolki_game' }, (p) => onGame?.(p.new))
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'aniolki_photos' }, (p) => onPhoto?.(p.new))
     .subscribe();
 }

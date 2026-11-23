@@ -42,7 +42,12 @@ const ANGEL_SVG = `
 
 function setCurrent(c) {
   const v = clampIndex(c, TOTAL);
-  if (v !== state.current) state.current = v;
+  if (v !== state.current) {
+    state.current = v;
+    // "Jesteśmy!" dotyczy tylko bieżącego przystanku — po zmianie zaczynamy od czystej karty.
+    state.arrived.clear();
+    safeSet('aniolki.arrived', '[]');
+  }
   safeSet('aniolki.current', String(v));
 }
 

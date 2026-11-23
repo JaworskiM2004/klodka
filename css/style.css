@@ -224,3 +224,17 @@ body.fit .view { flex: 1; min-height: 0; display: flex; flex-direction: column; 
 body.fit .slides { overflow-y: hidden; }
 body.fit .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 body.fit .hero .actions { margin-top: 34px; }
+
+/* Przyciski w zasięgu kciuka */
+body.fit .stop-pre { margin-top: auto; margin-bottom: 8px; }
+.stop-pre .title { font-size: 40px; }
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  max-width: 520px; margin: 0 auto;
+  padding: 18px 16px calc(env(safe-area-inset-bottom) + 12px);
+  background: linear-gradient(to bottom, rgba(36, 34, 42, 0), var(--bg) 35%);
+  display: grid; grid-template-columns: 64px 1fr; gap: 10px;
+}
+.dock-photo { padding: 0; font-size: 24px; background: var(--bg-2); }
+.dock-photo input { display: none; }
+.dock-space { height: 96px; }

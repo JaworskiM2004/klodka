@@ -250,7 +250,7 @@ function viewStop() {
 
   if (!arrived) {
     return `${topBar()}
-    <section class="card">
+    <section class="card stop-pre">
       ${head}
       <div class="actions">
         <a class="btn btn-ghost" href="${esc(mapsUrl(stop))}" target="_blank" rel="noopener">🧭 Prowadź</a>
@@ -262,7 +262,7 @@ function viewStop() {
 
   const n = photosFor(stop.id).length;
   const uploading = (state.pending[stop.id] || 0) > 0;
-  const label = uploading ? 'Wysyłam zdjęcia…' : isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
+  const label = uploading ? 'Wysyłam…' : isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
   return `${topBar()}
   <section class="card">
     ${head}
@@ -270,11 +270,15 @@ function viewStop() {
     <div class="task"><span class="kicker">Zadanie</span>${esc(stop.task)}</div>
     ${photoGrid(stop)}
     <ul class="facts">${stop.facts.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
-    <div class="actions">
-      <button class="btn btn-primary" data-act="next" ${uploading ? 'disabled' : ''}>${label}</button>
-    </div>
     ${nextTeaser()}
-  </section>`;
+  </section>
+  <div class="dock-space"></div>
+  <div class="dock">
+    <label class="btn btn-ghost dock-photo" aria-label="Dodaj zdjęcie">
+      <input type="file" accept="image/*" multiple data-upload="${esc(stop.id)}">📷
+    </label>
+    <button class="btn btn-primary" data-act="next" ${uploading ? 'disabled' : ''}>${label}</button>
+  </div>`;
 }
 
 function viewEnd() {
@@ -319,7 +323,8 @@ function render() {
   picking = 0;
   if (!state.loaded) return; // ekran ładowania z index.html
   const scr = screen();
-  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial' || scr === 'intro');
+  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial' || scr === 'intro'
+    || (scr === 'stop' && !isArrived(stops[state.current])));
   let html;
   let key = scr;
   if (scr === 'tutorial') html = viewTutorial();

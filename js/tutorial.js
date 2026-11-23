@@ -20,55 +20,70 @@ export const PADLOCK = (cls = '') => `
   <rect x="56" y="94" width="8" height="18" rx="4" fill="#2d2a34"/>
 </svg>`;
 
-const ICON_LOCK = `<span class="m-app">${PADLOCK()}</span>`;
 const SHARE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>`;
 const PLUS = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>`;
 
-// --- narysowane "zrzuty ekranu" (styl iOS) ---
-const mockSafariBar = `
-  <div class="mock">
-    <div class="m-page"><div class="m-line w70"></div><div class="m-line w50"></div><div class="m-line w60"></div></div>
+// --- narysowane "zrzuty ekranu" (iOS 26, na podstawie prawdziwych zrzutów) ---
+const BLANK_ICON = `<span class="m-tile">${PADLOCK()}</span>`;
+const LINES = '<div class="m-page"><div class="m-line w70"></div><div class="m-line w50"></div><div class="m-line w60"></div></div>';
+const BAR = (hlMenu) => `
     <div class="m-bar">
       <span class="m-round">‹</span>
-      <span class="m-url">🔒 jaworskim2004.github.io</span>
-      <span class="m-round hl">•••</span>
-    </div>
-  </div>`;
+      <span class="m-url"><span class="m-burger${hlMenu ? ' hl' : ''}">☰</span><span class="m-url-txt">jaworskim2004.github.io</span><span>↻</span></span>
+      <span class="m-round">⧉</span>
+    </div>`;
+const SHEET_HEAD = `
+      <div class="m-sheet-head">${BLANK_ICON}<div><small>jaworskim2004.github.io</small><span class="m-opt">Opcje ›</span></div></div>
+      <div class="m-people"><i></i><i></i><i></i><i></i></div>`;
+const ACTIONS = (more) => `
+      <div class="m-actions">
+        <span><i>⧉</i>Kopiuj</span><span><i>🔖</i>Zakładki</span><span><i>👓</i>Czytelnia</span>
+        <span class="${more === 'more' ? 'hl-wrap' : ''}"><i class="${more === 'more' ? 'hl' : ''}">${more === 'more' ? '⌄' : '⌃'}</i>${more === 'more' ? 'Pokaż więcej' : 'Pokaż mniej'}</span>
+      </div>`;
+
+const mockSafariBar = `<div class="mock">${LINES}${BAR(true)}</div>`;
 
 const mockMenu = `
   <div class="mock">
+    ${LINES}
     <div class="m-menu">
+      <div class="m-item"><span class="m-ico">文</span><span>Przetłumacz</span></div>
       <div class="m-item hl">${SHARE}<span>Udostępnij</span></div>
-      <div class="m-item"><span class="m-ico">☆</span><span>Dodaj do zakładek</span></div>
-      <div class="m-item"><span class="m-ico">＋</span><span>Nowa karta</span></div>
-      <div class="m-item"><span class="m-ico">⧉</span><span>Pokaż wszystkie karty</span></div>
+      <div class="m-item"><span class="m-ico">🔖</span><span>Dodaj do Zakładki</span></div>
+      <div class="m-item"><span class="m-ico">⌕</span><span>Znajdź na stronie</span></div>
     </div>
-    <div class="m-bar"><span class="m-round">‹</span><span class="m-url">jaworskim2004.github.io</span><span class="m-round">•••</span></div>
+    ${BAR(false)}
   </div>`;
 
 const mockSheet = `
   <div class="mock">
-    <div class="m-sheet">
-      <div class="m-sheet-head">${ICON_LOCK}<div><b>24.11</b><small>jaworskim2004.github.io</small></div></div>
-      <div class="m-apps"><i></i><i></i><i></i><i></i></div>
-      <div class="m-item"><span class="m-ico">⧉</span><span>Kopiuj</span></div>
-      <div class="m-item"><span class="m-ico">☆</span><span>Dodaj zakładkę</span></div>
-      <div class="m-item hl">${PLUS}<span>Do ekranu początkowego</span></div>
+    <div class="m-sheet">${SHEET_HEAD}${ACTIONS('more')}</div>
+  </div>`;
+
+const mockSheetMore = `
+  <div class="mock">
+    <div class="m-sheet m-sheet-up">
+      ${ACTIONS('less')}
+      <div class="m-list">
+        <div class="m-item"><span class="m-ico">☆</span><span>Dodaj do ulubionych</span></div>
+        <div class="m-item"><span class="m-ico">⌕</span><span>Znajdź na stronie</span></div>
+        <div class="m-item hl">${PLUS}<span>Do ekranu głównego</span></div>
+      </div>
     </div>
   </div>`;
 
 const mockAdd = `
   <div class="mock">
     <div class="m-sheet m-add">
-      <div class="m-add-head"><span>Anuluj</span><span class="hl m-add-btn">Dodaj</span></div>
-      <div class="m-add-row">${ICON_LOCK}<div><b>24.11</b><small>jaworskim2004.github.io</small></div></div>
+      <div class="m-add-head"><span class="m-round">✕</span><span class="hl m-add-btn">Dodaj</span></div>
+      <div class="m-add-row">${BLANK_ICON}<div><span class="m-field">&nbsp;</span><small>jaworskim2004.github.io</small></div></div>
       <div class="m-add-row m-toggle"><span>Otwórz jako aplikację internetową</span><i></i></div>
     </div>
   </div>`;
 
 const mockHome = `
   <div class="mock m-home">
-    <div class="m-grid">${'<i></i>'.repeat(5)}<span class="m-home-app"><span class="m-app hl">${PADLOCK()}</span><small>24.11</small></span>${'<i></i>'.repeat(6)}</div>
+    <div class="m-grid">${'<i></i>'.repeat(5)}<span class="m-home-app"><span class="m-app hl">${PADLOCK()}</span></span>${'<i></i>'.repeat(6)}</div>
   </div>`;
 
 const mockInApp = `
@@ -107,35 +122,26 @@ function slide(step, title, mock, note = '') {
 
 export function tutorialSlides() {
   const s = [];
-  s.push(`<section class="slide slide-hello">
-    ${PADLOCK('big')}
-    <h2>Hej! 👋</h2>
-    <p>Mam coś na jutro. Zanim to się otworzy, dodaj proszę tę stronę na ekran początkowy telefonu — zajmie pół minuty.</p>
-    <p class="slide-note">Przesuń palcem w lewo →</p>
-  </section>`);
-
   if (platform.inApp) {
-    s.push(slide('Najpierw', 'Otwórz tę stronę w przeglądarce', mockInApp,
-      'Kliknij ••• w rogu i wybierz „Otwórz w przeglądarce” (Safari). Potem wróć do tego poradnika.'));
+    s.push(slide('Najpierw', 'Otwórz tę stronę w Safari', mockInApp,
+      'Kliknij ••• w rogu i wybierz „Otwórz w przeglądarce”.'));
   }
-
   if (platform.android) {
-    s.push(slide('Krok 1', 'Kliknij ⋮ w prawym górnym rogu', mockAndroidTop, 'To menu przeglądarki Chrome.'));
+    s.push(slide('Krok 1', 'Kliknij ⋮ w prawym górnym rogu', mockAndroidTop));
     s.push(slide('Krok 2', 'Wybierz „Dodaj do ekranu głównego”', mockAndroidMenu, 'Czasem nazywa się to „Zainstaluj aplikację”. Potem potwierdź „Dodaj”.'));
   } else {
-    s.push(slide('Krok 1', 'Kliknij ••• na dole ekranu', mockSafariBar,
-      'Obok paska z adresem strony. Na starszym iPhonie od razu kliknij ikonę Udostępnij (kwadrat ze strzałką) i przeskocz do kroku 3.'));
+    s.push(slide('Krok 1', 'Kliknij ☰ w pasku adresu', mockSafariBar, 'Na dole ekranu, po lewej stronie adresu.'));
     s.push(slide('Krok 2', 'Wybierz „Udostępnij”', mockMenu));
-    s.push(slide('Krok 3', 'Kliknij „Do ekranu początkowego”', mockSheet,
-      'Nie widać? Przewiń listę w dół albo kliknij „Więcej”.'));
-    s.push(slide('Krok 4', 'Kliknij „Dodaj”', mockAdd, 'W prawym górnym rogu. Przełącznik „Otwórz jako aplikację” zostaw włączony.'));
+    s.push(slide('Krok 3', 'Kliknij „Pokaż więcej”', mockSheet));
+    s.push(slide('Krok 4', 'Wybierz „Do ekranu głównego”', mockSheetMore));
+    s.push(slide('Krok 5', 'Kliknij „Dodaj”', mockAdd,
+      'Nazwy nie zmieniaj — ma zostać pusta. Przełącznik „Otwórz jako aplikację internetową” zostaw włączony.'));
   }
-
   s.push(`<section class="slide slide-ask">
     ${mockHome}
-    <h2>Widzisz na ekranie początkowym lawendową kłódkę?</h2>
+    <h2>Widzisz kłódkę na ekranie głównym?</h2>
     <div class="actions">
-      <button class="btn btn-primary" data-act="tut-yes">Tak, widzę 🔒</button>
+      <button class="btn btn-primary" data-act="tut-yes">Tak</button>
       <button class="btn btn-ghost" data-act="tut-again">Nie — pokaż jeszcze raz</button>
     </div>
   </section>`);

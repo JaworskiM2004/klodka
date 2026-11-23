@@ -73,9 +73,9 @@ test('displayTitle hides surprises until revealed', () => {
 });
 
 test('lockWhen counts down to the meeting', () => {
-  assert.equal(lockWhen(new Date(2026, 10, 23, 22, 0)), 'jutro o 19:00');
-  assert.equal(lockWhen(new Date(2026, 10, 24, 10, 0)), 'dziś o 19:00');
-  assert.equal(lockWhen(new Date(2026, 10, 24, 19, 5)), 'już za chwilę');
+  assert.equal(lockWhen(new Date(2026, 10, 22, 22, 0)), 'jutro o 19:00');
+  assert.equal(lockWhen(new Date(2026, 10, 23, 2, 25)), 'dziś o 19:00');
+  assert.equal(lockWhen(new Date(2026, 10, 23, 19, 5)), 'już za chwilę');
 });
 
 test('route splits the market from its angels, ends at the tower', () => {

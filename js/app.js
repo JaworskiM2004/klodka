@@ -174,12 +174,19 @@ function unlockAnimation(g) {
   app.querySelector('.padlock')?.classList.add('open');
   const line = app.querySelector('.lock-line');
   if (line) line.textContent = 'Otwarte ✨';
+  // Kłódka się otwiera, a potem zamienia w aniołka.
+  setTimeout(() => {
+    const btn = app.querySelector('.lock-btn');
+    if (btn) { btn.innerHTML = ANGEL_SVG; btn.firstElementChild.classList.add('morph', 'big-angel'); }
+    const h = app.querySelector('.lock-screen h1');
+    if (h) h.textContent = 'Śladem toruńskich aniołków';
+  }, 1000);
   setTimeout(() => {
     state.unlocking = false;
     setUnlocked(true);
     setCurrent(g.current);
     render();
-  }, 1600);
+  }, 2800);
   return false;
 }
 
@@ -193,7 +200,7 @@ function viewLock() {
     <h1>Jeszcze zamknięte</h1>
     <p>Otworzy się ${esc(lockWhen())}.<br>Klucz ma ktoś inny 😉</p>
     <p class="lock-line" aria-live="polite">&nbsp;</p>
-    ${inBrowser ? '<p class="slide-note">Od teraz otwieraj kłódkę z ekranu początkowego.</p>' : ''}
+    ${inBrowser ? '<p class="slide-note">Od teraz otwieraj kłódkę z ekranu głównego.</p>' : ''}
   </section>`;
 }
 

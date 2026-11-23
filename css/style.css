@@ -287,3 +287,8 @@ body.fit .dock { position: static; max-width: none; margin: 0; padding: 12px 0 0
   .sheet .facts li::before { left: 13px; top: 10px; }
   .sheet .link { padding: 6px; }
 }
+
+/* bez przybliżania dwuklikiem */
+html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+* { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+img { -webkit-touch-callout: default; }

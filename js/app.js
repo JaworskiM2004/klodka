@@ -309,8 +309,8 @@ function viewEnd() {
   return `
   <section class="hero end">
     ${ANGEL_SVG}
-    <h1>Szlak zaliczony ✨</h1>
-    <p>${ANGEL_COUNT} aniołków${all.length ? ` i ${all.length} ${word}` : ''}. Dzięki za ten spacer.</p>
+    <h1>Szlak zaliczony</h1>
+    <p>${ANGEL_COUNT} aniołków${all.length ? ` i ${all.length} ${word}` : ''}</p>
     ${shown.length ? `<div class="collage">${shown.map((p, i) => thumb(p, i === MAX - 1 && rest ? `<span class="more">+${rest}</span>` : '')).join('')}</div>` : ''}
     <button class="link" data-act="sheet">lista przystanków</button>
   </section>`;

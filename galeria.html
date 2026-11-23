@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Galeria</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#24222a">
+  <link rel="icon" href="icons/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .group { margin-top: 26px; }
+    .group h2 { font-size: 22px; margin-bottom: 4px; }
+    .group .muted { color: var(--muted); font-size: 14px; }
+    .admin { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 20px; }
+    select { width: 100%; min-height: 52px; border-radius: 14px; background: var(--card); color: var(--text); border: 1px solid var(--line); font: inherit; padding: 0 12px; }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; }
+    .note { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top"><div class="brand">Galeria · tylko dla Ciebie</div><a class="icon-btn" href="./">← aplikacja</a></div>
+    <h1 class="title">Wszystkie zdjęcia</h1>
+    <p id="summary" class="where">Ładuję…</p>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="prep">📲 Zapisz wszystkie w telefonie</button>
+      <button class="btn btn-ghost" id="zip">🗂️ Pobierz jako ZIP</button>
+    </div>
+    <p class="note" id="hint">Na iPhonie: kliknij „Zapisz wszystkie”, poczekaj aż się przygotują, kliknij jeszcze raz i wybierz „Zachowaj obrazy”. Pojedyncze zdjęcie: dotknij i przytrzymaj.</p>
+
+    <div id="groups"></div>
+
+    <section class="admin">
+      <h2>Sterowanie grą</h2>
+      <p class="note">Przeskocz na dowolny przystanek (oba telefony przełączą się same).</p>
+      <div class="row">
+        <select id="jump"></select>
+        <button class="btn btn-ghost" id="jumpBtn">Ustaw</button>
+      </div>
+      <div class="actions"><button class="btn btn-ghost" id="reset">↺ Zacznij od nowa (zdjęcia zostają)</button></div>
+    </section>
+  </main>
+  <div id="toast" role="status" hidden></div>
+  <script type="module" src="js/gallery.js"></script>
+</body>
+</html>

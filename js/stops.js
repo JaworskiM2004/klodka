@@ -12,7 +12,6 @@ export const stops = [
     facts: [
       'Jordan to „Anioł Harmonii” — trzyma mikrofon, bo Jordanki to przede wszystkim sala koncertowa. Grali tu m.in. Sting i Robbie Williams.',
       'Rzeźbę zaprojektowała Małgorzata Więcławska-Furyk. Uniesiona głowa i rozchylone skrzydła mają wyglądać jak śpiew, którego po prostu nie słychać.',
-      'Cały szlak wystartował w maju 2025 roku, a dziś ma już kilkanaście figurek. Dzisiaj zbieracie prawie wszystkie ze Starówki.',
     ],
   },
   {

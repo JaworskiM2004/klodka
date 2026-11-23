@@ -249,14 +249,18 @@ function viewStop() {
     <h1 class="title">${esc(displayTitle(stop, arrived))}</h1>`;
 
   if (!arrived) {
+    const mark = stop.secret ? '<div class="stop-spark">✨</div>' : ANGEL_SVG;
     return `${topBar()}
-    <section class="card stop-pre">
-      ${head}
-      <div class="actions">
+    <section class="stop-pre">
+      <div class="stop-hero">
+        ${mark}
+        ${head}
+      </div>
+      <div class="stop-actions">
         <a class="btn btn-ghost" href="${esc(mapsUrl(stop))}" target="_blank" rel="noopener">🧭 Prowadź</a>
         <button class="btn btn-primary" data-act="arrive">Jesteśmy! ✨</button>
+        <button class="link" data-act="next">pomiń ten przystanek</button>
       </div>
-      <button class="link" data-act="next">pomiń ten przystanek</button>
     </section>`;
   }
 

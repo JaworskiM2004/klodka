@@ -271,3 +271,19 @@ body.fit .dock { position: static; max-width: none; margin: 0; padding: 12px 0 0
 .collage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; margin: 16px 0 4px; }
 .stop-grid li { min-width: 0; } .stop-grid li button { width: 100%; min-width: 0; }
 .dock .btn-primary { white-space: nowrap; font-size: 17px; padding: 0 12px; }
+
+/* Niskie ekrany (np. iPhone SE) — ciaśniej, żeby nic nie wystawało */
+@media (max-height: 720px) {
+  .stop-on { gap: 8px; }
+  .stop-on .title { font-size: 28px; }
+  .stop-on .where { font-size: 15px; }
+  .stop-on .task { padding: 12px 14px; font-size: 15px; }
+  .strip-empty { padding: 13px; }
+  .facts-btn { padding: 12px 14px; }
+  .sheet { max-height: 94dvh; padding-top: 14px; }
+  .sheet h2 { font-size: 21px; margin-bottom: 8px; }
+  .sheet .facts { gap: 7px; }
+  .sheet .facts li { font-size: 14.5px; padding: 10px 12px 10px 36px; line-height: 1.4; }
+  .sheet .facts li::before { left: 13px; top: 10px; }
+  .sheet .link { padding: 6px; }
+}

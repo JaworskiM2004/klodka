@@ -41,3 +41,9 @@ export function screenFor({ unlocked, standalone, tutorialDone, current, total, 
 export function displayTitle(stop, revealed) {
   return stop.secret && !revealed ? 'Niespodzianka ✨' : stop.title;
 }
+
+// Kłódka otwiera się sama o 19:00 w dniu spotkania (czas z telefonu).
+export const UNLOCK_AT = new Date(2026, 10, 23, 19, 0, 0);
+export function timeUnlocked(now = new Date()) {
+  return now.getTime() >= UNLOCK_AT.getTime();
+}

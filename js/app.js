@@ -1,5 +1,5 @@
 import { stops, ANGEL_COUNT } from './stops.js';
-import { mapsUrl, clampIndex, nextIndex, screenFor, displayTitle } from './logic.js';
+import { mapsUrl, clampIndex, nextIndex, screenFor, displayTitle, timeUnlocked } from './logic.js';
 import * as api from './api.js';
 import { shrink } from './shrink.js';
 import { viewTutorial, wireTutorial, tutorialGo, isStandalone, PADLOCK } from './tutorial.js';
@@ -64,8 +64,9 @@ function setUnlocked(u) {
 }
 
 function applyGame(g) {
-  if (!state.unlocked && g.unlocked && screen() === 'lock') return unlockAnimation(g);
-  const a = setUnlocked(!!g.unlocked);
+  const open = !!g.unlocked || timeUnlocked();
+  if (!state.unlocked && open && screen() === 'lock') return unlockAnimation(g);
+  const a = setUnlocked(open);
   const b = setCurrent(g.current);
   return a || b;
 }
@@ -321,6 +322,7 @@ function render() {
   picking = 0;
   if (!state.loaded) return; // ekran ładowania z index.html
   const scr = screen();
+  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial');
   let html;
   let key = scr;
   if (scr === 'tutorial') html = viewTutorial();
@@ -386,5 +388,14 @@ api.subscribe({
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 setInterval(() => { if (!document.hidden) refresh(); }, 8000);
+
+// O 19:00 kłódka otwiera się sama — także gdy aplikacja jest właśnie otwarta.
+setInterval(() => {
+  if (state.loaded && !state.unlocked && !state.unlocking && timeUnlocked()) {
+    if (screen() === 'lock') unlockAnimation({ current: state.current });
+    else { setUnlocked(true); render(); }
+    api.setUnlocked(true).catch(() => {});
+  }
+}, 1000);
 
 refresh();

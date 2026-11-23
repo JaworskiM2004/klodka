@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { nextIndex, clampIndex, mapsUrl, progressLabel, fitSize, photoPath, screenFor, displayTitle } from '../js/logic.js';
+import { nextIndex, clampIndex, mapsUrl, progressLabel, fitSize, photoPath, screenFor, displayTitle, timeUnlocked } from '../js/logic.js';
 import { stops } from '../js/stops.js';
 
 test('nextIndex stops at the end screen', () => {
@@ -76,4 +76,10 @@ test('route splits the market from its angels, ends at the tower', () => {
   const ids = stops.map(s => s.id);
   assert.deepEqual(ids.slice(2, 5), ['jarmark', 'jonasz', 'iga']);
   assert.ok(stops.filter(s => s.kind === 'place').every(s => s.secret));
+});
+
+test('padlock opens by itself at 19:00 on the day', () => {
+  assert.equal(timeUnlocked(new Date(2026, 10, 23, 18, 59, 59)), false);
+  assert.equal(timeUnlocked(new Date(2026, 10, 23, 19, 0, 0)), true);
+  assert.equal(timeUnlocked(new Date(2026, 10, 22, 23, 0)), false);
 });

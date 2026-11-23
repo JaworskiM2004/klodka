@@ -32,12 +32,13 @@ export const stops = [
     kind: 'place',
     secret: true,
     title: 'Jarmark',
-    hint: 'Rynek Staromiejski — cały jest Wasz.',
+    hint: 'Rynek Staromiejski — choinka stoi przy pomniku Kopernika.',
     lat: 53.0100, lng: 18.6050,
     task: 'Czas na grzańca 🍷 Fota przy choince obowiązkowa (no, prawie).',
     facts: [
       'Stoiska w poniedziałek działają do 20:30 — więc grzaniec teraz albo nigdy 😉',
       'Z grzańcem w ręce idzie się dalej — dwa kolejne aniołki stoją dosłownie kilka kroków stąd.',
+      'Tegoroczna choinka ma prawie 11 metrów i ponad 14 tysięcy lampek. Pierwszy raz w tym miejscu stoi sztuczne drzewko zamiast żywego.',
     ],
   },
   {

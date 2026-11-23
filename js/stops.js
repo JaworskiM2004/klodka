@@ -33,7 +33,7 @@ export const stops = [
     secret: true,
     title: 'Jarmark',
     hint: 'Rynek Staromiejski — choinka stoi przy pomniku Kopernika.',
-    lat: 53.0100, lng: 18.6050,
+    lat: 53.01015, lng: 18.60395, // zachodni róg rynku — wejście od strony placu Rapackiego
     task: 'Czas na grzańca 🍷 Fota przy choince obowiązkowa (no, prawie).',
     facts: [
       'Stoiska w poniedziałek działają do 20:30 — więc grzaniec teraz albo nigdy 😉',

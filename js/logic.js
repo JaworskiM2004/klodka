@@ -39,7 +39,7 @@ export function screenFor({ unlocked, standalone, tutorialDone, current, total, 
 
 // Niespodzianki (jarmark, Wedel) zdradzamy dopiero na miejscu.
 export function displayTitle(stop, revealed) {
-  return stop.secret && !revealed ? 'Niespodzianka ✨' : stop.title;
+  return stop.secret && !revealed ? 'Niespodzianka' : stop.title;
 }
 
 // Kłódka otwiera się sama o 19:00 w dniu spotkania (czas z telefonu).

@@ -67,7 +67,7 @@ test('screenFor: locked shows tutorial in browser, lock on home screen', () => {
 });
 
 test('displayTitle hides surprises until revealed', () => {
-  assert.equal(displayTitle({ title: 'Jarmark', secret: true }, false), 'Niespodzianka ✨');
+  assert.equal(displayTitle({ title: 'Jarmark', secret: true }, false), 'Niespodzianka');
   assert.equal(displayTitle({ title: 'Jarmark', secret: true }, true), 'Jarmark');
   assert.equal(displayTitle({ title: 'Jonasz' }, false), 'Jonasz');
 });

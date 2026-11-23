@@ -243,3 +243,31 @@ body.fit .stop-pre { flex: 1; min-height: 0; display: flex; flex-direction: colu
 .dock-photo { padding: 0; font-size: 24px; background: var(--bg-2); }
 .dock-photo input { display: none; }
 .dock-space { height: 96px; }
+
+/* --- wszystko na jednym ekranie --- */
+body.fit main { padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
+.stop-on { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.stop-on .title { font-size: 36px; margin: 0; }
+.stop-on .task { margin-top: 2px; }
+.stop-on .next { margin-top: auto; }
+.strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.thumb { position: relative; display: block; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: var(--bg-2); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb.ph { display: grid; place-items: center; }
+.more { position: absolute; inset: 0; background: rgba(20, 18, 26, .6); display: grid; place-items: center; font-weight: 800; font-size: 20px; color: #fff; }
+.strip-empty { border: 2px dashed var(--lav-2); color: var(--lav); border-radius: 16px; padding: 18px; text-align: center; font-weight: 800; cursor: pointer; }
+.strip-empty input { display: none; }
+.facts-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--card); border: 1px solid var(--line); color: var(--text); border-radius: 16px; padding: 15px 16px; font: inherit; font-weight: 800; cursor: pointer; }
+.facts-btn .count { color: var(--lav); }
+body.fit .dock { position: static; max-width: none; margin: 0; padding: 12px 0 0; background: none; }
+.sheet .facts { margin-top: 4px; }
+.stop-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px !important; }
+.stop-grid li button { padding: 10px 10px !important; gap: 8px !important; font-size: 14px; }
+.stop-grid .dot { width: 22px !important; height: 22px !important; font-size: 11px !important; }
+.stop-grid .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero.end { padding-top: 6px; flex: 1; }
+.hero.end .angel-mark { width: 70px; height: 70px; }
+.hero.end h1 { font-size: 32px; margin: 12px 0 8px; }
+.collage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; margin: 16px 0 4px; }
+.stop-grid li { min-width: 0; } .stop-grid li button { width: 100%; min-width: 0; }
+.dock .btn-primary { white-space: nowrap; font-size: 17px; padding: 0 12px; }

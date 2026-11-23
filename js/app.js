@@ -50,6 +50,7 @@ function setCurrent(c) {
   const v = clampIndex(c, TOTAL);
   if (v === state.current) return false;
   state.current = v;
+  state.facts = false;
   state.arrived.clear(); // "Jesteśmy!" dotyczy tylko bieżącego przystanku
   safeSet('aniolki.arrived', '[]');
   safeSet('aniolki.current', String(v));
@@ -216,27 +217,30 @@ function topBar() {
   <div class="progress"><i style="width:${pct}%"></i></div>`;
 }
 
-function photoGrid(stop) {
+const thumb = (p, extra = '') => {
+  const u = esc(api.publicUrl(p.path));
+  return `<a class="thumb" href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="Zdjęcie">${extra}</a>`;
+};
+
+// Jeden rząd miniaturek — bez przewijania. Nadmiar jako "+N".
+function photoStrip(stop) {
   const list = photosFor(stop.id);
-  const imgs = list.map((p) => {
-    const u = esc(api.publicUrl(p.path));
-    return `<a href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="Zdjęcie"></a>`;
-  }).join('');
-  const pend = Array.from({ length: state.pending[stop.id] || 0 }, () => '<div class="ph"><div class="spin"></div></div>').join('');
-  return `
-  <div class="photos">
-    ${imgs}${pend}
-    <label>
-      <input type="file" accept="image/*" multiple data-upload="${esc(stop.id)}">
-      <div><span>📷</span>${list.length ? 'Jeszcze jedno' : 'Dodaj zdjęcie'}</div>
-    </label>
-  </div>`;
+  const pend = state.pending[stop.id] || 0;
+  if (!list.length && !pend) {
+    return `<label class="strip-empty"><input type="file" accept="image/*" multiple data-upload="${esc(stop.id)}">📷 Dodaj wspólne zdjęcie</label>`;
+  }
+  const MAX = 4;
+  const spinners = Array.from({ length: Math.min(pend, MAX) }, () => '<div class="thumb ph"><div class="spin"></div></div>');
+  const shown = list.slice(-(MAX - spinners.length));
+  const hidden = list.length - shown.length;
+  const tiles = shown.map((p, i) => thumb(p, i === 0 && hidden ? `<span class="more">+${hidden}</span>` : ''));
+  return `<div class="strip">${[...tiles, ...spinners].join('')}</div>`;
 }
 
 function nextTeaser() {
   const next = stops[state.current + 1];
   if (!next) return '';
-  return `<div class="next">Następny: <b>${esc(displayTitle(next, false))}</b></div>`;
+  return `<div class="next">Następny: <b>${esc(displayTitle(next, false))}${next.secret ? ' ✨' : ''}</b></div>`;
 }
 
 function viewStop() {
@@ -268,15 +272,14 @@ function viewStop() {
   const uploading = (state.pending[stop.id] || 0) > 0;
   const label = uploading ? 'Wysyłam…' : isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
   return `${topBar()}
-  <section class="card">
+  <section class="stop-on">
     ${head}
     <div class="where"><span>📍</span><span>${esc(stop.hint)}</span></div>
     <div class="task"><span class="kicker">Zadanie</span>${esc(stop.task)}</div>
-    ${photoGrid(stop)}
-    <ul class="facts">${stop.facts.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+    ${photoStrip(stop)}
+    <button class="facts-btn" data-act="facts"><span>✦ Ciekawostki</span><span class="count">${stop.facts.length} ›</span></button>
     ${nextTeaser()}
   </section>
-  <div class="dock-space"></div>
   <div class="dock">
     <label class="btn btn-ghost dock-photo" aria-label="Dodaj zdjęcie">
       <input type="file" accept="image/*" multiple data-upload="${esc(stop.id)}">📷
@@ -285,17 +288,32 @@ function viewStop() {
   </div>`;
 }
 
+function viewFacts() {
+  const stop = stops[state.current];
+  return `
+  <div class="sheet-bg" data-act="close">
+    <div class="sheet" role="dialog" aria-label="Ciekawostki">
+      <h2>${esc(displayTitle(stop, true))}</h2>
+      <ul class="facts">${stop.facts.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+      <button class="link" data-act="close">zamknij</button>
+    </div>
+  </div>`;
+}
+
 function viewEnd() {
   const all = state.photos;
   const word = all.length === 1 ? 'zdjęcie' : all.length % 10 >= 2 && all.length % 10 <= 4 && (all.length < 10 || all.length > 20) ? 'zdjęcia' : 'zdjęć';
+  const MAX = 9;
+  const shown = all.slice(0, MAX);
+  const rest = all.length - shown.length;
   return `
-  <section class="hero">
+  <section class="hero end">
     ${ANGEL_SVG}
     <h1>Szlak zaliczony ✨</h1>
     <p>${ANGEL_COUNT} aniołków${all.length ? ` i ${all.length} ${word}` : ''}. Dzięki za ten spacer.</p>
-  </section>
-  ${all.length ? `<div class="photos">${all.map((p) => { const u = esc(api.publicUrl(p.path)); return `<a href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="Zdjęcie"></a>`; }).join('')}</div>` : ''}
-  <button class="link" data-act="sheet">lista przystanków</button>`;
+    ${shown.length ? `<div class="collage">${shown.map((p, i) => thumb(p, i === MAX - 1 && rest ? `<span class="more">+${rest}</span>` : '')).join('')}</div>` : ''}
+    <button class="link" data-act="sheet">lista przystanków</button>
+  </section>`;
 }
 
 function viewSheet() {
@@ -303,17 +321,15 @@ function viewSheet() {
     const cls = i < state.current ? 'done' : i === state.current ? 'now' : '';
     const dot = i < state.current ? '✓' : i + 1;
     const revealed = i < state.current || (i === state.current && isArrived(s));
-    const n = photosFor(s.id).length;
     return `<li class="${cls}"><button data-jump="${i}">
-      <span class="dot">${dot}</span>
-      <span>${esc(displayTitle(s, revealed))}${n ? `<small>📷 ${n}</small>` : ''}</span>
+      <span class="dot">${dot}</span><span class="name">${esc(displayTitle(s, revealed))}</span>
     </button></li>`;
   }).join('');
   return `
   <div class="sheet-bg" data-act="close">
     <div class="sheet" role="dialog" aria-label="Lista przystanków">
       <h2>Przystanki</h2>
-      <ol>${items}</ol>
+      <ol class="stop-grid">${items}</ol>
       <button class="link" data-act="close">zamknij</button>
     </div>
   </div>`;
@@ -327,8 +343,7 @@ function render() {
   picking = 0;
   if (!state.loaded) return; // ekran ładowania z index.html
   const scr = screen();
-  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial' || scr === 'intro'
-    || (scr === 'stop' && !isArrived(stops[state.current])));
+  document.body.classList.add('fit'); // nic się nie przewija — wszystko mieści się na ekranie
   let html;
   let key = scr;
   if (scr === 'tutorial') html = viewTutorial();
@@ -343,7 +358,7 @@ function render() {
   if (scr === 'tutorial' && lastKey === key && !state.sheet) return;
   const animate = key !== lastKey;
   lastKey = key;
-  app.innerHTML = `<div class="view${animate ? ' fade-in' : ''}">${html}</div>${state.sheet && scr !== 'tutorial' && scr !== 'lock' ? viewSheet() : ''}`;
+  app.innerHTML = `<div class="view${animate ? ' fade-in' : ''}">${html}</div>${state.sheet && scr !== 'tutorial' && scr !== 'lock' ? viewSheet() : ''}${state.facts && scr === 'stop' ? viewFacts() : ''}`;
   if (scr === 'tutorial') wireTutorial(app);
 }
 
@@ -362,7 +377,8 @@ app.addEventListener('click', (e) => {
     case 'arrive': markArrived(stops[state.current]); render(); break;
     case 'next': goNext(); break;
     case 'sheet': state.sheet = true; render(); break;
-    case 'close': state.sheet = false; render(); break;
+    case 'close': state.sheet = false; state.facts = false; render(); break;
+    case 'facts': state.facts = true; render(); break;
     case 'lock': shakeLock(); break;
     case 'tut-next': tutorialGo(app, 1); break;
     case 'tut-again': tutorialGo(app, 'start'); break;

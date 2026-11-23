@@ -240,7 +240,7 @@ function photoStrip(stop) {
 function nextTeaser() {
   const next = stops[state.current + 1];
   if (!next) return '';
-  return `<div class="next">Następny: <b>${esc(displayTitle(next, false))}${next.secret ? ' ✨' : ''}</b></div>`;
+  return `<div class="next">Następny: <b>${esc(displayTitle(next, false))}</b></div>`;
 }
 
 function viewStop() {
@@ -253,7 +253,7 @@ function viewStop() {
     <h1 class="title">${esc(displayTitle(stop, arrived))}</h1>`;
 
   if (!arrived) {
-    const mark = stop.secret ? '<div class="stop-spark">✨</div>' : ANGEL_SVG;
+    const mark = stop.secret ? '<div class="stop-spark">?</div>' : ANGEL_SVG;
     return `${topBar()}
     <section class="stop-pre">
       <div class="stop-hero">
@@ -262,7 +262,7 @@ function viewStop() {
       </div>
       <div class="stop-actions">
         <a class="btn btn-ghost" href="${esc(mapsUrl(stop))}" target="_blank" rel="noopener">🧭 Prowadź</a>
-        <button class="btn btn-primary" data-act="arrive">Jesteśmy! ✨</button>
+        <button class="btn btn-primary" data-act="arrive">Jesteśmy!</button>
         <button class="link" data-act="next">pomiń ten przystanek</button>
       </div>
     </section>`;
@@ -270,14 +270,14 @@ function viewStop() {
 
   const n = photosFor(stop.id).length;
   const uploading = (state.pending[stop.id] || 0) > 0;
-  const label = uploading ? 'Wysyłam…' : isLast ? 'Kończymy ✨' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
+  const label = uploading ? 'Wysyłam…' : isLast ? 'Kończymy' : n ? 'Dalej →' : 'Dalej bez zdjęcia →';
   return `${topBar()}
   <section class="stop-on">
     ${head}
     <div class="where"><span>📍</span><span>${esc(stop.hint)}</span></div>
     <div class="task"><span class="kicker">Zadanie</span>${esc(stop.task)}</div>
     ${photoStrip(stop)}
-    <button class="facts-btn" data-act="facts"><span>✦ Ciekawostki</span><span class="count">${stop.facts.length} ›</span></button>
+    <button class="facts-btn" data-act="facts"><span>Ciekawostki</span><span class="count">${stop.facts.length} ›</span></button>
     ${nextTeaser()}
   </section>
   <div class="dock">

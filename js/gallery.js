@@ -30,7 +30,7 @@ async function load() {
   const cur = g.current;
   showLock(g.unlocked);
   $('jump').innerHTML = stops.map((s, i) => `<option value="${i}" ${i === cur ? 'selected' : ''}>${i + 1}. ${esc(s.title)}</option>`).join('')
-    + `<option value="${stops.length}" ${cur >= stops.length ? 'selected' : ''}>✨ Ekran końcowy</option>`;
+    + `<option value="${stops.length}" ${cur >= stops.length ? 'selected' : ''}>Ekran końcowy</option>`;
 }
 
 async function fetchAll() {
@@ -101,7 +101,7 @@ function showLock(u) {
 
 $('lockBtn').addEventListener('click', async () => {
   $('lockBtn').disabled = true;
-  try { showLock(await api.setUnlocked(!unlocked)); toast(unlocked ? 'Otwarte ✨ (telefony przełączą się w kilka sekund)' : 'Zamknięte 🔒'); }
+  try { showLock(await api.setUnlocked(!unlocked)); toast(unlocked ? 'Otwarte (telefony przełączą się w kilka sekund)' : 'Zamknięte 🔒'); }
   catch { toast('Nie udało się — brak internetu?'); $('lockBtn').disabled = false; }
 });
 

@@ -72,7 +72,7 @@ h1, h2 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; m
 .task .kicker { display: block; margin-bottom: 4px; }
 .facts { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
 .facts li { background: var(--bg-2); border-radius: 16px; padding: 13px 15px 13px 42px; position: relative; color: #e4dff0; font-size: 16px; }
-.facts li::before { content: '✦'; position: absolute; left: 16px; top: 13px; color: var(--lav); }
+.facts li::before { content: '•'; position: absolute; left: 16px; top: 13px; color: var(--lav); }
 
 .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
 .photos img, .photos .ph, .photos label {
@@ -230,7 +230,7 @@ body.fit .stop-pre { flex: 1; min-height: 0; display: flex; flex-direction: colu
 .stop-hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 40px; }
 .stop-hero .angel-mark { width: 84px; height: 84px; margin-bottom: 18px; opacity: .95; }
 .stop-hero .title { font-size: 46px; margin: 8px 0 0; }
-.stop-spark { font-size: 60px; margin-bottom: 14px; }
+.stop-spark { width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--lav); color: var(--lav); font-family: var(--serif); font-size: 52px; font-weight: 600; line-height: 1; display: grid; place-items: center; margin-bottom: 18px; }
 .stop-actions { display: grid; gap: 12px; padding-bottom: 4px; }
 .stop-actions .link { margin-top: 0; }
 .dock {

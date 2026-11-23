@@ -41,12 +41,3 @@ export function screenFor({ unlocked, standalone, tutorialDone, current, total, 
 export function displayTitle(stop, revealed) {
   return stop.secret && !revealed ? 'Niespodzianka ✨' : stop.title;
 }
-
-// Tekst na kłódce: kiedy się otworzy (spotkanie 23.11.2026 o 19:00, czas lokalny).
-export function lockWhen(now = new Date()) {
-  const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
-  const day = y * 10000 + m * 100 + d;
-  if (day < 20261123) return day === 20261122 ? 'jutro o 19:00' : '23 listopada o 19:00';
-  if (day === 20261123 && now.getHours() < 19) return 'dziś o 19:00';
-  return 'już za chwilę';
-}

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { nextIndex, clampIndex, mapsUrl, progressLabel, fitSize, photoPath, screenFor, displayTitle, lockWhen } from '../js/logic.js';
+import { nextIndex, clampIndex, mapsUrl, progressLabel, fitSize, photoPath, screenFor, displayTitle } from '../js/logic.js';
 import { stops } from '../js/stops.js';
 
 test('nextIndex stops at the end screen', () => {
@@ -70,12 +70,6 @@ test('displayTitle hides surprises until revealed', () => {
   assert.equal(displayTitle({ title: 'Jarmark', secret: true }, false), 'Niespodzianka ✨');
   assert.equal(displayTitle({ title: 'Jarmark', secret: true }, true), 'Jarmark');
   assert.equal(displayTitle({ title: 'Jonasz' }, false), 'Jonasz');
-});
-
-test('lockWhen counts down to the meeting', () => {
-  assert.equal(lockWhen(new Date(2026, 10, 22, 22, 0)), 'jutro o 19:00');
-  assert.equal(lockWhen(new Date(2026, 10, 23, 2, 25)), 'dziś o 19:00');
-  assert.equal(lockWhen(new Date(2026, 10, 23, 19, 5)), 'już za chwilę');
 });
 
 test('route splits the market from its angels, ends at the tower', () => {

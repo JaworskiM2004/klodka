@@ -1,5 +1,5 @@
 import { stops, ANGEL_COUNT } from './stops.js';
-import { mapsUrl, clampIndex, nextIndex, screenFor, displayTitle, lockWhen } from './logic.js';
+import { mapsUrl, clampIndex, nextIndex, screenFor, displayTitle } from './logic.js';
 import * as api from './api.js';
 import { shrink } from './shrink.js';
 import { viewTutorial, wireTutorial, tutorialGo, isStandalone, PADLOCK } from './tutorial.js';
@@ -156,30 +156,24 @@ async function addPhotos(stop, files) {
   if (failed) toast(`Nie wysłało się ${failed} ${failed === 1 ? 'zdjęcie' : 'zdjęć'} — spróbuj dodać jeszcze raz.`, 4500);
 }
 
-const LOCK_LINES = ['Jeszcze nie 😌', 'Cierpliwości…', 'Wytrych nie zadziała', 'Klucz ma ktoś inny', 'Nic z tego 😄'];
 function shakeLock() {
   const lock = app.querySelector('.padlock');
-  const line = app.querySelector('.lock-line');
   if (!lock) return;
   lock.classList.remove('shake');
   void lock.getBoundingClientRect();
   lock.classList.add('shake');
-  shakeLock.n = ((shakeLock.n ?? -1) + 1) % LOCK_LINES.length;
-  if (line) line.textContent = LOCK_LINES[shakeLock.n];
 }
 
 function unlockAnimation(g) {
   if (state.unlocking) return false;
   state.unlocking = true;
   app.querySelector('.padlock')?.classList.add('open');
-  const line = app.querySelector('.lock-line');
-  if (line) line.textContent = 'Otwarte ✨';
   // Kłódka się otwiera, a potem zamienia w aniołka.
   setTimeout(() => {
     const btn = app.querySelector('.lock-btn');
     if (btn) { btn.innerHTML = ANGEL_SVG; btn.firstElementChild.classList.add('morph', 'big-angel'); }
-    const h = app.querySelector('.lock-screen h1');
-    if (h) h.textContent = 'Śladem toruńskich aniołków';
+    const t = app.querySelector('.lock-time');
+    if (t) { t.textContent = 'Śladem toruńskich aniołków'; t.classList.add('morph'); }
   }, 1000);
   setTimeout(() => {
     state.unlocking = false;
@@ -193,14 +187,10 @@ function unlockAnimation(g) {
 // ---------- widoki ----------
 
 function viewLock() {
-  const inBrowser = !state.standalone;
   return `
   <section class="lock-screen">
     <button class="lock-btn" data-act="lock" aria-label="Kłódka">${PADLOCK()}</button>
-    <h1>Jeszcze zamknięte</h1>
-    <p>Otworzy się ${esc(lockWhen())}.<br>Klucz ma ktoś inny 😉</p>
-    <p class="lock-line" aria-live="polite">&nbsp;</p>
-    ${inBrowser ? '<p class="slide-note">Od teraz otwieraj kłódkę z ekranu głównego.</p>' : ''}
+    <h1 class="lock-time">19:00</h1>
   </section>`;
 }
 

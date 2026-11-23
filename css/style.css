@@ -222,3 +222,5 @@ body.fit { position: fixed; inset: 0; overflow: hidden; overscroll-behavior: non
 body.fit main { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
 body.fit .view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 body.fit .slides { overflow-y: hidden; }
+body.fit .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+body.fit .hero .actions { margin-top: 34px; }

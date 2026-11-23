@@ -200,9 +200,6 @@ function viewIntro() {
   <section class="hero">
     ${ANGEL_SVG}
     <h1>Śladem toruńskich aniołków</h1>
-    <p>${ANGEL_COUNT} aniołków ukrytych na Starówce. Przy każdym — wspólna fota (albo i nie, jak kto woli).</p>
-    <p>Po drodze może trafić się jakaś niespodzianka ✨</p>
-    <p class="slide-note">Klikać można z dowolnego telefonu — oba widzą to samo.</p>
     <div class="actions">
       <button class="btn btn-primary" data-act="start">Zaczynamy</button>
     </div>
@@ -322,7 +319,7 @@ function render() {
   picking = 0;
   if (!state.loaded) return; // ekran ładowania z index.html
   const scr = screen();
-  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial');
+  document.body.classList.toggle('fit', scr === 'lock' || scr === 'tutorial' || scr === 'intro');
   let html;
   let key = scr;
   if (scr === 'tutorial') html = viewTutorial();
